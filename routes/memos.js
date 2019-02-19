@@ -1,7 +1,9 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const MarkdownIt = require('markdown-it');
 
+var md = new MarkdownIt();
 var router = express.Router();
 
 var config = {
@@ -58,7 +60,7 @@ router.get('/show/:memo', function (req, res) {
       console.log(path.join(__dirname, config.markdown.template));
       res.render("memo", {
         title: "Memo: " + req.params.memo,
-        content: content
+        content: md.render(content)
       });
     }
   })
