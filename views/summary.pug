@@ -1,0 +1,24 @@
+extends layout
+
+mixin markdownTile(name)
+  .column.is-4
+    .box
+      div
+        a.is-pulled-right(href=`/memos/show/${name}`)
+          i.fas.fa-external-link-square-alt(style='font-size:1.6em;')
+        h2.title.is-4= name
+        hr
+        center
+          img(src=`/memos/image/${name}`)
+
+block content
+  .section
+    .container
+      .title
+        center= summaryTitle
+  .section
+    .container
+      each line in tiles
+        .columns
+        each tile in line
+          +markdownTile(tile)
