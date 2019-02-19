@@ -1,6 +1,8 @@
 extends layout
 
 block content
-  .section
-    h1.title MDServer
-
+  div.hero.is-info.is-bold#HomeHero
+    .hero-body
+      h1.title.is-1 Serveur de fichier Markdown
+      .subtitle Votre serveur de fichiers markdown, pratique pour partager des mémos, des recettes, des rapports et plus encore !
+  script $("#HomeHero").css("margin-top", $("nav").height())
