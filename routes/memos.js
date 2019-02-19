@@ -1,9 +1,22 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const hljs = require('highlight.js');
 const MarkdownIt = require('markdown-it');
 
-var md = new MarkdownIt();
+var md = new MarkdownIt({
+  highlight: function (str, lang) {
+    if (lang && hljs.getLanguage(lang)) {
+      try {
+        return '<pre class="hljs"><code>' +
+               hljs.highlight(lang, str, true).value +
+               '</code></pre>';
+      } catch (__) {}
+    }
+ 
+    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
+  }
+});
 var router = express.Router();
 
 var config = {

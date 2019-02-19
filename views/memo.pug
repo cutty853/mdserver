@@ -2,8 +2,11 @@ extends layout
 
 block stylesheet
   link(rel='stylesheet', href='/stylesheets/github-markdown.css')
+  link(rel="stylesheet", href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.14.2/styles/default.min.css")
 
 block content
+  script(src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.14.2/highlight.min.js")
+  script hljs.initHighlightingOnLoad();
   .section
     .container
       .markdown-body
