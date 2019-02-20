@@ -1,29 +1,32 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const hljs = require('highlight.js');
-const MarkdownIt = require('markdown-it');
+const memorizer = require('../memorizer/memorizer');
 
-var md = new MarkdownIt({
-  highlight: function (str, lang) {
-    if (lang && hljs.getLanguage(lang)) {
-      try {
-        return '<pre class="hljs"><code>' +
-               hljs.highlight(lang, str, true).value +
-               '</code></pre>';
-      } catch (__) {}
-    }
- 
-    return '<pre class="hljs"><code>' + md.utils.escapeHtml(str) + '</code></pre>';
-  }
+var memos = new memorizer('dummy', {
+  directory: "memos/"
 });
+
 var router = express.Router();
 
-var config = {
-  markdown: {
-    directory: "../memos/",
-    template: "../views/memo.pug"
+/**
+ * Produce a list of list by tiling the originalArray.
+ * 
+ * @param {int} tileAmount amount of tiles per ligne
+ * @param {*} originalArray the array to tile
+ */
+function tiler(tileAmount, originalArray) {
+  tiles = [];
+
+  for (let index = 0; index < originalArray.length; index++) {
+    const element = originalArray[index];
+    if (index % tileAmount == 0) {
+      tiles.push([]);
+    }
+    tiles[Math.floor(index / tileAmount)].push(element);
   }
+
+  return tiles;
 }
 
 router.get('/', function (req, res){
@@ -31,57 +34,25 @@ router.get('/', function (req, res){
 });
 
 router.get('/summary', function (req, res) {
-  fs.readdir(path.join(__dirname, config.markdown.directory), {withFileTypes: true}, function(err, files) {
-    // Construction de la liste des noms des fichiers markdown
-    markdownFiles = []
-    for (const file of files) {
-      if (file.isFile()) {
-        filename = path.parse(path.basename(file.name)).name;
-        console.log("loading memo tile for: " + filename);
-        markdownFiles.push(filename);
-      }
-    }
-
-    // construction des tuiles pour la vue
-    tiles = []
-    for (let index = 0; index < markdownFiles.length; index++) {
-      const element = markdownFiles[index];
-      if (index % 3 == 0) {
-        tiles.push([]);
-      }
-      tiles[Math.floor(index / 3)].push(element);
-    }
-
-    // sending the view with its variables
+  memos.listAll(function (markdownFiles) {
     res.render("summary", {
       summaryTitle: "Sommaire des memos",
-      tiles: tiles
+      tiles: tiler(3, markdownFiles)
     });
   });
 });
 
 router.get('/show/:memo', function (req, res) {
-  // octicons.markdown.toSVG()
-  var filePath = path.join(__dirname, config.markdown.directory, req.params.memo + '.md');
-  fs.readFile(filePath, {encoding: 'utf-8'}, function (err, content) {
-    if (err) {
-      console.log("error while loading memo called " + req.params.memo);
-      res.send("nope"); // TODO: redirect with error
-    } else {
-      console.log("loading memo called" + req.params.memo);
-      
-      console.log(path.join(__dirname, config.markdown.template));
-      res.render("memo", {
-        title: "Memo: " + req.params.memo,
-        content: md.render(content)
-      });
-    }
-  })
+  memos.show(req.params.memo, function(markdownContent) {
+    res.render("memo", {
+      title: "Memo: " + req.params.memo,
+      content: markdownContent
+    });
+  });
 });
 
 router.get('/image/:memo', function (req, res) {
-  imagesDirectory = path.join(__dirname, config.markdown.directory, 'images');
-  res.sendFile(path.join(imagesDirectory, req.params.memo + '.jpg'), function(err) {
+  res.sendFile(memos.imagePath(req.params.memo), function(err) {
     if (err) {
       console.log("error while sending image file");
     } else {
