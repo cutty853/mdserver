@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 const hljs = require('highlight.js');
 const MarkdownIt = require('markdown-it');
+const multer = require('multer');
 
 var md = new MarkdownIt({
   highlight: function (str, lang) {
@@ -104,6 +105,70 @@ class Memorizer {
 
       treatmentCallback(markdownFiles);
     });
+  }
+
+  _multerDiskStorage(directory) {
+    return multer.diskStorage({
+      destination: function (req, file, cb) {
+        console.log("choosing destination");
+        if (path.extname(file.originalname) == ".md" && file.mimetype == "text/markdown") {
+          console.log("choosing destination for markdown file");
+          cb(null, path.join(__dirname, directory));
+        } else if (file.mimetype == "image/png" || file.mimetype == "image/jpeg") {
+          console.log("choosing destination for image file");
+          cb(null, path.join(__dirname, directory, "images"));
+        }
+      },
+    
+      filename: function (req, file, cb) {
+        console.log("choosing filename");
+        if (path.extname(file.originalname) == ".md" && file.mimetype == "text/markdown") {
+          console.log("choosing filename for markdown file");
+          cb(null, file.originalname);
+        } else if (file.mimetype == "image/jpeg") {
+          console.log("choosing filename for image file");
+          cb(null, file.originalname);
+        }
+      }
+    });
+  }
+
+  _mutlerFilesFilter(req, file, cb) {
+    console.log("filtering file");
+    var extension = path.extname(file.originalname);
+    // TODO: Faire un check de la taille de l'image (seulement)
+    // voir objet "limits" via la configuration de multer
+  
+    if (extension == ".md" && file.mimetype == "text/markdown") {
+      console.log("markdown file was ok");
+      cb(null, true);
+    } else if (file.mimetype == "image/jpeg" && (extension == ".jpg" || extension == ".jpeg")) {
+      console.log("jpeg image file was ok");
+      cb(null, true);
+    } else {
+      console.log("file was not good");
+      cb(null, false);
+    }
+  }
+
+  /**
+   * Handle the user posted files corresponding to a memo.
+   */
+  multerFilesHandler() {
+    var multerFilesStorage = this._multerDiskStorage(this.config.directory);
+    var mutlerFilesFilter = this._mutlerFilesFilter;
+
+    var memosUpload = multer({
+      storage: multerFilesStorage,
+      fileFilter: mutlerFilesFilter
+    });
+
+    var memosPostFiles = memosUpload.fields([
+      {name: 'memo-file', maxCount: 1},
+      {name: 'memo-image', maxCount: 1}
+    ]);
+
+    return memosPostFiles;
   }
 }
 
