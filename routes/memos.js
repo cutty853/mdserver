@@ -1,6 +1,5 @@
 const express = require('express');
 const fs = require('fs');
-const path = require('path');
 const memorizer = require('../memorizer/memorizer');
 
 var memos = new memorizer('dummy', {
