@@ -1,0 +1,22 @@
+mixin inputField(name, label, icon, type_)
+  .field
+    label.label=label
+      .control.has-icons-left
+        input.input(type=type_ name=name)
+        span.icon.is-left
+          i.fas(class=icon)
+
+mixin submitButton(text)
+  .field
+    .control
+      button.button.is-link(type="submit")=text
+
+mixin fileField(inputName, label)
+  .field
+    .file
+      label.file-label
+        input.file-input(type="file", name=inputName)
+        span.file-cta
+          span.file-icon
+            i.fas.fa-upload
+          span.file-label= label

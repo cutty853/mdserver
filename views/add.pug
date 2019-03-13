@@ -1,14 +1,5 @@
 extends layout
-
-mixin fileField(inputName, label)
-  .field
-    .file
-      label.file-label
-        input.file-input(type="file", name=inputName)
-        span.file-cta
-          span.file-icon
-            i.fas.fa-upload
-          span.file-label= label
+include includes/forms.pug
 
 block content
   .section#FirstSection
@@ -20,6 +11,4 @@ block content
           form(action="add", method="POST", enctype="multipart/form-data")
             +fileField("memo-image", "image du mémo")
             +fileField("memo-file", "fichier markdown du mémo")
-            .field
-              .control
-                button.button.is-link(type="submit") Submit
+            +submitButton("Ajouter")
