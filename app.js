@@ -54,7 +54,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // router definition
 app.use('/', indexRouter);
-app.use('/users', passport.authenticate('local'), usersRouter);
+// app.use('/users', passport.authenticate('local'), usersRouter);
+app.use('/users', usersRouter);
 app.use('/memos', memosRouter);
 
 // catch 404 and forward to error handler

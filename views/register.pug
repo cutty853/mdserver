@@ -1,0 +1,12 @@
+extends layout
+include includes/forms.pug
+
+block content
+    .section#FirstSection
+        .columns
+            .column.is-4
+            .column.is-4
+                +inputField("username", "nom d'utilisateur", "fa-sign-in-alt", "text")
+                +inputField("password", "mot de passe", "fa-key", "password")
+                +inputField("password-check", "vérification du mot de passe", "fa-key", "password")
+                +submitButton("S'enregistrer")
