@@ -94,13 +94,17 @@ class Memorizer {
   listAll(treatmentCallback) {
     fs.readdir(path.join(__dirname, this.config.directory), {withFileTypes: true}, function(err, files) {
       var markdownFiles = [];
-
-      for (const file of files) {
-        if (file.isFile()) {
-          var filename = path.parse(path.basename(file.name)).name;
-          console.log("loading memo tile for: " + filename);
-          markdownFiles.push(filename);
+    
+      if (files) {
+        for (const file of files) {
+          if (file.isFile()) {
+            var filename = path.parse(path.basename(file.name)).name;
+            console.log("loading memo tile for: " + filename);
+            markdownFiles.push(filename);
+          }
         }
+      } else {
+        console.log("memos folder is not present");
       }
 
       treatmentCallback(markdownFiles);
